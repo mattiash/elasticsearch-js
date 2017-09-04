@@ -7,6 +7,7 @@ module.exports = Host;
 const url = require('url');
 const qs = require('querystring');
 const _ = require('./utils');
+const net = require('net')
 
 const startsWithProtocolRE = /^([a-z]+:)?\/\//;
 let defaultProto = 'http:';
@@ -163,7 +164,12 @@ Host.prototype.makeUrl = function (params) {
   const query = qs.stringify(this.getQuery(params.query));
 
   if (this.host) {
-    return this.protocol + '://' + this.host + port + path + (query ? '?' + query : '');
+    if( net.isIPv6( this.host )) {
+      return this.protocol + '://[' + this.host + ']' + port + path + (query ? '?' + query : '');
+    }
+    else {
+      return this.protocol + '://' + this.host + port + path + (query ? '?' + query : '');
+    }
   } else {
     return path + (query ? '?' + query : '');
   }
